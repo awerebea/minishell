@@ -1,5 +1,5 @@
 # minishell
-21-School (Ecole42) 'minishell' project. Score .
+21-School (Ecole42) 'minishell' project. Score 100 (without bonuses).
 
 ## Description
 This is the first team project of the school course. The goal of this project is to create your own CLI implementation.
