@@ -6,7 +6,7 @@
 /*   By: deddara <deddara@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/24 19:34:14 by deddara           #+#    #+#             */
-/*   Updated: 2020/10/06 15:01:38 by awerebea         ###   ########.fr       */
+/*   Updated: 2020/10/06 22:21:52 by awerebea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int		new_path_create(char *c_path, t_command *command)
 	return (0);
 }
 
-static int		error_print(t_command *command)
+static int		error_print(t_command *command, t_data *data)
 {
 	if ((!ft_strncmp(command->argv[0], "cd", 3) && \
 	ft_strlen(command->argv[0]) == 2) || \
@@ -50,12 +50,15 @@ static int		error_print(t_command *command)
 	{
 		ft_putstr_fd("minishell: ", 2);
 		ft_putstr_fd(command->argv[0], 2);
-		ft_putstr_fd(": command not found\n", 2);
+		if (f_strarr_find_elem(data->envp, "PATH", "=") == -1)
+			ft_putstr_fd(": No such file or directory\n", 2);
+		else
+			ft_putstr_fd(": command not found\n", 2);
 	}
 	return (127);
 }
 
-static int		find_command(char **path_data, t_command *command)
+static int		find_command(char **path_data, t_command *command, t_data *data)
 {
 	int			i;
 	char		*tmp;
@@ -76,7 +79,7 @@ static int		find_command(char **path_data, t_command *command)
 		i++;
 		free(c_path);
 	}
-	return (error_print(command));
+	return (error_print(command, data));
 }
 
 static int		f_chk_n_fill_empty_argv_with_echo(t_command *cmd)
@@ -112,10 +115,10 @@ int				check_command(t_data *data, t_command *cmd)
 		return (0);
 	}
 	if (!(path_p = f_env_find_elem(data->envp, "PATH", "=")))
-		return (error_print(cmd));
+		return (error_print(cmd, data));
 	if (!(path_data = ft_split(path_p, ':')))
 		return (1);
-	res = find_command(path_data, cmd);
+	res = find_command(path_data, cmd, data);
 	path_data = f_strarr_free(path_data);
 	return (res);
 }
