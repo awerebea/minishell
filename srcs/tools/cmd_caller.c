@@ -6,7 +6,7 @@
 /*   By: awerebea <awerebea@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/29 14:41:13 by awerebea          #+#    #+#             */
-/*   Updated: 2020/10/03 14:11:10 by awerebea         ###   ########.fr       */
+/*   Updated: 2020/10/08 16:43:15 by awerebea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,13 +79,13 @@ static int		execute(t_command *cmd, t_data *data)
 	int			status_2;
 
 	if (pipe(data->fd) == -1)
-		return (1);
+		return (0);
 	if ((pid_1 = fork()) < 0)
-		return (1);
+		return (0);
 	if (pid_1 == 0)
 		process_handler(cmd, data, 1);
 	if ((pid_2 = fork()) < 0)
-		return (1);
+		return (0);
 	if (pid_2 == 0)
 		process_handler(cmd->next, data, 0);
 	close(data->fd[0]);
@@ -93,7 +93,7 @@ static int		execute(t_command *cmd, t_data *data)
 	waitpid(pid_1, &status_1, 0);
 	waitpid(pid_2, &status_2, 0);
 	data->errcode = f_get_exitcode(status_2);
-	return (1);
+	return (0);
 }
 
 int				cmd_caller(t_data *data, t_command *cmd)
@@ -101,12 +101,7 @@ int				cmd_caller(t_data *data, t_command *cmd)
 	data->counter = 0;
 	if (cmd->pipe == 0)
 		return (execute_one(cmd, data));
-	while (cmd)
-	{
-		data->counter++;
-		if (execute(cmd, data))
-			return (0);
-		cmd = cmd->next;
-	}
+	if (cmd && ++data->counter)
+		return (execute(cmd, data));
 	return (0);
 }
